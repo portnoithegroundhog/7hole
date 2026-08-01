@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7-Hole Flute Acoustics Worksheet & Calculator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .font-mono-sheet {
+            font-family: 'Courier Prime', monospace;
+        }
+
+        /* Printable Worksheet Styling */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .paper-sheet {
+                box-shadow: none !important;
+                border: 1px solid #94a3b8 !important;
+                padding: 1.5rem !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+
+        /* Parchment/Worksheet paper style */
+        .paper-sheet {
+            background-color: #fcfbf7;
+            background-image: radial-gradient(#e2e8f0 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
+
+        /* Custom scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Hole highlight effect */
+        .hole-row:hover {
+            background-color: rgba(241, 245, 249, 0.8);
+        }
+        .hole-row.active-playing {
+            background-color: rgba(254, 243, 199, 0.8) !important;
+            border-left: 4px solid #d97706;
+        }
+
+        /* Number line underline input style */
+        .fill-blank {
+            border-bottom: 2px solid #475569;
+            background: rgba(255, 255, 255, 0.7);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-md no-print sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-amber-600 rounded-lg text-white shadow-inner">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-100 flex items-center gap-2">
+                        7-Hole Flute Acoustics Worksheet
+                        <span class="text-xs bg-amber-500/20 text-amber-300 font-semibold px-2 py-0.5 rounded-full border border-amber-500/30">Acoustics Lab</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Pipe Lengths, Speed of Sound & End Correction Calculator</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap">
+                <button id="btn-play-scale" onclick="playFullScale()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> Play Scale
+                </button>
+                <button onclick="window.print()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> Print Worksheet
+                </button>
+                <button onclick="resetDefaults()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+
+        <!-- Controls & Settings Bar -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 no-print">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                
+                <!-- Bore Diameter Input -->
+                <div class="space-y-1.5">
+                    <label for="bore-diameter" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                        <span><i class="fa-solid fa-circle-dot text-amber-600 mr-1.5"></i> Bore Diameter (D)</span>
+                        <span id="radius-badge" class="text-xs font-normal text-slate-500">R = 0.375 in</span>
+                    </label>
+                    <div class="relative rounded-md shadow-sm">
+                        <input type="number" id="bore-diameter" step="0.01" value="0.75" oninput="updateCalculations()"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <span class="text-xs text-slate-400 font-medium unit-label">inches</span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500">Internal diameter of flute body tube.</p>
+                </div>
+
+                <!-- Speed of Sound / Temp -->
+                <div class="space-y-1.5">
+                    <label for="speed-of-sound" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                        <span><i class="fa-solid fa-gauge-high text-blue-600 mr-1.5"></i> Speed of Sound (v)</span>
+                        <button onclick="toggleTempModal()" class="text-xs text-blue-600 hover:underline"><i class="fa-solid fa-temperature-half"></i> Temp Calc</button>
+                    </label>
+                    <div class="relative rounded-md shadow-sm">
+                        <input type="number" id="speed-of-sound" step="1" value="13622" oninput="updateCalculations()"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <span class="text-xs text-slate-400 font-medium" id="speed-unit-label">in/sec</span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-500">Standard 13,622 in/s ≈ 346 m/s at 24.5°C (76°F).</p>
+                </div>
+
+                <!-- Tuning Presets -->
+                <div class="space-y-1.5">
+                    <label for="preset-select" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        <i class="fa-solid fa-sliders text-emerald-600 mr-1.5"></i> Tuning Preset
+                    </label>
+                    <select id="preset-select" onchange="applyPreset(this.value)"
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition bg-white">
+                        <option value="custom">Custom Scale / Pattern</option>
+                        
+                        <optgroup label="Western Modes & Diatonic">
+                            <option value="ionian" selected>Major / Ionian (2-2-1-2-2-2-1)</option>
+                            <option value="dorian">Dorian (2-1-2-2-2-1-2)</option>
+                            <option value="phrygian">Phrygian (1-2-2-2-1-2-2)</option>
+                            <option value="lydian">Lydian (2-2-2-1-2-2-1)</option>
+                            <option value="mixolydian">Mixolydian (2-2-1-2-2-1-2)</option>
+                            <option value="aeolian">Natural Minor / Aeolian (2-1-2-2-1-2-2)</option>
+                            <option value="locrian">Locrian (1-2-2-1-2-2-2)</option>
+                            <option value="harmonic-minor">Harmonic Minor (2-1-2-2-1-3-1)</option>
+                            <option value="melodic-minor">Melodic Minor (2-1-2-2-2-2-1)</option>
+                        </optgroup>
+
+                        <optgroup label="Blues Scales">
+                            <option value="minor-blues">Minor Blues (3-2-1-1-3-2)</option>
+                            <option value="major-blues">Major Blues (2-1-1-3-2-3)</option>
+                            <option value="heptatonic-blues">7-Note Blues (3-2-1-1-1-2-2)</option>
+                        </optgroup>
+
+                        <optgroup label="Pentatonic Scales (5-Tone)">
+                            <option value="major-pentatonic">Major Pentatonic (2-2-3-2-3)</option>
+                            <option value="minor-pentatonic">Minor Pentatonic (3-2-2-3-2)</option>
+                            <option value="egyptian-pentatonic">Egyptian / Suspended (2-3-2-3-2)</option>
+                            <option value="man-gong">Man Gong Pentatonic (3-2-3-2-2)</option>
+                            <option value="hirajoshi">Japanese Hirajoshi (2-1-4-1-4)</option>
+                            <option value="insen">Japanese Insen (1-4-2-4-1)</option>
+                            <option value="iwato">Japanese Iwato (1-4-1-4-2)</option>
+                            <option value="yo-scale">Japanese Yo Scale (2-3-2-2-3)</option>
+                        </optgroup>
+
+                        <optgroup label="Hexatonic Scales (6-Tone)">
+                            <option value="whole-tone">Whole Tone (2-2-2-2-2-2)</option>
+                            <option value="prometheus">Prometheus Scale (2-2-2-3-1-2)</option>
+                            <option value="augmented-hexatonic">Augmented Hexatonic (3-1-3-1-3-1)</option>
+                            <option value="tritone-hexatonic">Tritone Hexatonic (1-3-2-1-3-2)</option>
+                        </optgroup>
+
+                        <optgroup label="Tetratonic Scales (4-Tone)">
+                            <option value="major-tetratonic">Major Tetratonic (4-3-2-3)</option>
+                            <option value="minor-tetratonic">Minor Tetratonic (3-4-2-3)</option>
+                            <option value="diminished-tetratonic">Diminished / Square (3-3-3-3)</option>
+                            <option value="native-tetratonic">Native Tetratonic (3-2-4-3)</option>
+                            <option value="inuit-tetratonic">Inuit Tetratonic (2-3-2-5)</option>
+                        </optgroup>
+
+                        <optgroup label="Tritonic Scales (3-Tone)">
+                            <option value="major-triad-tritonic">Major Triad Tritonic (4-3-5)</option>
+                            <option value="minor-triad-tritonic">Minor Triad Tritonic (3-4-5)</option>
+                            <option value="equal-tritonic">Equal Tritonic (4-4-4)</option>
+                            <option value="symmetrical-tritonic">Symmetrical Tritonic (5-2-5)</option>
+                        </optgroup>
+
+                        <optgroup label="Octatonic Scales (8-Tone)">
+                            <option value="octatonic-hw">Octatonic Half-Whole (1-2-1-2-1-2-1-2)</option>
+                            <option value="octatonic-wh">Octatonic Whole-Half (2-1-2-1-2-1-2-1)</option>
+                        </optgroup>
+
+                        <optgroup label="Microtonal / Equal Division (EDO)">
+                            <option value="5-edo">5-EDO Slendro (1-1-1-1-1)</option>
+                            <option value="7-edo">7-EDO Equidistant (1-1-1-1-1-1-1)</option>
+                            <option value="8-edo">8-EDO Equidistant (1-1-1-1-1-1-1-1)</option>
+                        </optgroup>
+
+                        <optgroup label="Traditional Instruments">
+                            <option value="bansuri-e">Bansuri E Natural (Hindustani)</option>
+                            <option value="native-g">Native American Style 7-Hole G</option>
+                        </optgroup>
+                    </select>
+                    <p class="text-[11px] text-slate-500">Quickly load standard musical scales.</p>
+                </div>
+
+                <!-- Units & Display Settings -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        <i class="fa-solid fa-ruler text-purple-600 mr-1.5"></i> Measurement Unit
+                    </label>
+                    <div class="grid grid-cols-2 gap-2 pt-0.5">
+                        <button type="button" id="unit-in-btn" onclick="setUnits('in')"
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold border transition bg-amber-600 text-white border-amber-600 shadow-sm">
+                            Inches (in)
+                        </button>
+                        <button type="button" id="unit-mm-btn" onclick="setUnits('mm')"
+                            class="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition">
+                            Metric (mm)
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-500">Toggles formulas and display units.</p>
+                </div>
+
+            </div>
+
+            <!-- Key Note & Step Pattern Custom Scale Generator Row -->
+            <div class="mt-5 pt-4 border-t border-slate-200 grid grid-cols-1 lg:grid-cols-12 gap-4 items-end bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                
+                <!-- Key Note Picker -->
+                <div class="lg:col-span-3 space-y-1">
+                    <label for="key-note-select" class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-key text-amber-600"></i> Key Note (Root)
+                    </label>
+                    <select id="key-note-select" onchange="generateScaleFromPattern()"
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-bold text-slate-800 bg-white focus:ring-2 focus:ring-amber-500 outline-none">
+                        <option value="C3">C3 (130.81 Hz)</option>
+                        <option value="C#3">C#3 / Db3 (138.59 Hz)</option>
+                        <option value="D3">D3 (146.83 Hz)</option>
+                        <option value="D#3">D#3 / Eb3 (155.56 Hz)</option>
+                        <option value="E3">E3 (164.81 Hz)</option>
+                        <option value="F3">F3 (174.61 Hz)</option>
+                        <option value="F#3">F#3 / Gb3 (185.00 Hz)</option>
+                        <option value="G3">G3 (196.00 Hz)</option>
+                        <option value="G#3">G#3 / Ab3 (207.65 Hz)</option>
+                        <option value="A3">A3 (220.00 Hz)</option>
+                        <option value="A#3">A#3 / Bb3 (233.08 Hz)</option>
+                        <option value="B3">B3 (246.94 Hz)</option>
+                        <option value="C4">C4 (261.63 Hz)</option>
+                        <option value="C#4">C#4 / Db4 (277.18 Hz)</option>
+                        <option value="D4" selected>D4 (293.66 Hz)</option>
+                        <option value="D#4">D#4 / Eb4 (311.13 Hz)</option>
+                        <option value="E4">E4 (329.63 Hz)</option>
+                        <option value="F4">F4 (349.23 Hz)</option>
+                        <option value="F#4">F#4 / Gb4 (369.99 Hz)</option>
+                        <option value="G4">G4 (392.00 Hz)</option>
+                        <option value="G#4">G#4 / Ab4 (415.30 Hz)</option>
+                        <option value="A4">A4 (440.00 Hz)</option>
+                        <option value="A#4">A#4 / Bb4 (466.16 Hz)</option>
+                        <option value="B4">B4 (493.88 Hz)</option>
+                        <option value="C5">C5 (523.25 Hz)</option>
+                        <option value="C#5">C#5 / Db5 (554.37 Hz)</option>
+                        <option value="D5">D5 (587.33 Hz)</option>
+                        <option value="D#5">D#5 / Eb5 (622.25 Hz)</option>
+                        <option value="E5">E5 (659.25 Hz)</option>
+                        <option value="F5">F5 (698.46 Hz)</option>
+                        <option value="F#5">F#5 / Gb5 (739.99 Hz)</option>
+                        <option value="G5">G5 (783.99 Hz)</option>
+                        <option value="G#5">G#5 / Ab5 (830.61 Hz)</option>
+                        <option value="A5">A5 (880.00 Hz)</option>
+                        <option value="A#5">A#5 / Bb5 (932.33 Hz)</option>
+                        <option value="B5">B5 (987.77 Hz)</option>
+                        <option value="C6">C6 (1046.50 Hz)</option>
+                    </select>
+                </div>
+
+                <!-- Step Pattern Text Box & Tuning System Mode -->
+                <div class="lg:col-span-5 space-y-1">
+                    <div class="flex items-center justify-between">
+                        <label for="step-pattern-input" class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-calculator text-blue-600"></i> Step Pattern
+                        </label>
+                        <select id="tuning-mode-select" onchange="generateScaleFromPattern()" class="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded px-1.5 py-0.5 outline-none">
+                            <option value="12tet" selected>12-TET Semitones (1 step = 100¢)</option>
+                            <option value="edo">Equal Octave Division (EDO / Microtonal)</option>
+                            <option value="cents">Step Values in Cents</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="step-pattern-input" value="2-2-1-2-2-2-1" oninput="generateScaleFromPattern()" placeholder="2-2-1-2-2-2-1 or 1-1-1-1-1"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-900 bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <button onclick="generateScaleFromPattern()" 
+                            class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition shadow-sm flex items-center gap-1 whitespace-nowrap">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Compute
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step Pattern Quick Presets -->
+                <div class="lg:col-span-4 space-y-1">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                        Quick Scale & Mode Buttons
+                    </label>
+                    <div class="flex flex-wrap gap-1 max-h-36 overflow-y-auto p-1.5 border border-slate-200 rounded-lg bg-white shadow-inner">
+                        <span class="w-full text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Western Modes:</span>
+                        <button onclick="setStepPattern('2-2-1-2-2-2-1', '12tet')" title="Ionian / Major"
+                            class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-semibold transition">
+                            Major/Ionian
+                        </button>
+                        <button onclick="setStepPattern('2-1-2-2-2-1-2', '12tet')" title="Dorian Mode"
+                            class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-semibold transition">
+                            Dorian
+                        </button>
+                        <button onclick="setStepPattern('1-2-2-2-1-2-2', '12tet')" title="Phrygian Mode"
+                            class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-semibold transition">
+                            Phrygian
+                        </button>
+                        <button onclick="setStepPattern('2-2-2-1-2-2-1', '12tet')" title="Lydian Mode"
+                            class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-semibold transition">
+                            Lydian
+                        </button>
+                        <button onclick="setStepPattern('2-2-1-2-2-1-2', '12tet')" title="Mixolydian Mode"
+                            class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-semibold transition">
+                            Mixolydian
+                        </button>
+                        <button onclick="setStepPattern('2-1-2-2-1-2-2', '12tet')" title="Aeolian / Natural Minor"
+                            class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-semibold transition">
+                            Aeolian
+                        </button>
+                        <button onclick="setStepPattern('1-2-2-1-2-2-2', '12tet')" title="Locrian Mode"
+                            class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-semibold transition">
+                            Locrian
+                        </button>
+
+                        <span class="w-full text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 pt-1">Blues & Pentatonic:</span>
+                        <button onclick="setStepPattern('3-2-1-1-3-2', '12tet')" title="Minor Blues"
+                            class="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded text-[11px] font-semibold transition">
+                            Minor Blues
+                        </button>
+                        <button onclick="setStepPattern('2-1-1-3-2-3', '12tet')" title="Major Blues"
+                            class="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded text-[11px] font-semibold transition">
+                            Major Blues
+                        </button>
+                        <button onclick="setStepPattern('2-2-3-2-3', '12tet')" title="Major Pentatonic"
+                            class="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded text-[11px] font-semibold transition">
+                            Maj Pent
+                        </button>
+                        <button onclick="setStepPattern('3-2-2-3-2', '12tet')" title="Minor Pentatonic"
+                            class="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded text-[11px] font-semibold transition">
+                            Min Pent
+                        </button>
+                        <button onclick="setStepPattern('2-1-4-1-4', '12tet')" title="Hirajoshi (Japanese)"
+                            class="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded text-[11px] font-semibold transition">
+                            Hirajoshi
+                        </button>
+
+                        <span class="w-full text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 pt-1">Tri, Tetra, Hexa, Octa & EDO:</span>
+                        <button onclick="setStepPattern('4-3-5', '12tet')" title="Major Triad Tritonic"
+                            class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded text-[11px] font-semibold transition">
+                            3-Tonic Triad
+                        </button>
+                        <button onclick="setStepPattern('3-3-3-3', '12tet')" title="Diminished Tetratonic"
+                            class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded text-[11px] font-semibold transition">
+                            4-Tonic Dim
+                        </button>
+                        <button onclick="setStepPattern('2-2-2-2-2-2', '12tet')" title="Whole Tone Hexatonic"
+                            class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded text-[11px] font-semibold transition">
+                            Whole Tone
+                        </button>
+                        <button onclick="setStepPattern('1-2-1-2-1-2-1-2', '12tet')" title="Octatonic Half-Whole"
+                            class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded text-[11px] font-semibold transition">
+                            Octatonic
+                        </button>
+                        <button onclick="setStepPattern('1-1-1-1-1', 'edo')" title="5-Tone Equal Temperament (5-EDO)"
+                            class="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-800 rounded text-[11px] font-bold transition">
+                            5-EDO
+                        </button>
+                        <button onclick="setStepPattern('1-1-1-1-1-1-1', 'edo')" title="7-Tone Equal Temperament (7-EDO)"
+                            class="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-800 rounded text-[11px] font-bold transition">
+                            7-EDO
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Left Column: Inputs & Note Tunings -->
+            <div class="lg:col-span-5 space-y-6 no-print">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-800 px-4 py-3 text-white flex justify-between items-center">
+                        <h2 class="text-sm font-bold tracking-wide uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-music text-amber-400"></i> Hole Frequencies & Notes
+                        </h2>
+                        <span class="text-xs text-slate-300 font-normal">7 Tone Holes</span>
+                    </div>
+
+                    <div class="p-4 space-y-3">
+                        <div class="grid grid-cols-12 text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1">
+                            <span class="col-span-2">Hole</span>
+                            <span class="col-span-3">Note</span>
+                            <span class="col-span-5">Frequency (Hz)</span>
+                            <span class="col-span-2 text-right">Play</span>
+                        </div>
+
+                        <!-- 7 Hole Input Rows generated dynamically -->
+                        <div id="hole-inputs-container" class="space-y-2">
+                            <!-- Injected via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acoustic End Correction Info Box -->
+                <div class="bg-amber-50 rounded-xl border border-amber-200/80 p-4 text-xs text-amber-900 space-y-2">
+                    <div class="font-bold text-amber-950 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info text-amber-600"></i>
+                        Acoustic End Correction Physics
+                    </div>
+                    <p class="leading-relaxed text-amber-900">
+                        Sound waves extend slightly past the physical opening of a pipe before reflecting. For an un-flanged open tube end or tone hole, the standard acoustic end correction is:
+                    </p>
+                    <div class="bg-amber-100/70 font-mono-sheet p-2 rounded text-center font-bold text-amber-950 border border-amber-200">
+                        ΔL = 0.6 × R
+                    </div>
+                    <p class="text-[11px] text-amber-800">
+                        where <strong>R</strong> is the internal bore radius (<code class="bg-amber-100 px-1 rounded">R = Bore Diameter / 2</code>).
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Column: The Official Worksheet View -->
+            <div class="lg:col-span-7">
+                <div class="paper-sheet rounded-xl p-6 relative sm:p-8">
+
+                    <!-- Worksheet Title Block -->
+                    <div class="border-b-2 border-slate-800 pb-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-amber-700 uppercase tracking-widest block font-mono-sheet">ACOUSTICS FORMULA WORKSHEET</span>
+                            <h2 class="text-xl sm:text-2xl font-bold font-mono-sheet text-slate-900 uppercase tracking-tight">
+                                7-HOLE FLUTE PIPE LENGTHS
+                            </h2>
+                            <p class="text-xs text-slate-600 mt-1 font-mono-sheet">
+                                Formula: <span class="bg-slate-200/80 px-1.5 py-0.5 rounded font-bold">L = (v / 2f) - 0.6R</span>
+                            </p>
+                        </div>
+                        <div class="text-right text-xs font-mono-sheet text-slate-500">
+                            <div>Speed of Sound (v): <span id="ws-v-val" class="font-bold text-slate-800">13622</span> <span class="unit-speed">in/s</span></div>
+                            <div>Bore Radius (R): <span id="ws-r-val" class="font-bold text-slate-800">0.375</span> <span class="unit-label">in</span></div>
+                            <div>End Correction (0.6R): <span id="ws-ec-val" class="font-bold text-amber-700">0.225</span> <span class="unit-label">in</span></div>
+                        </div>
+                    </div>
+
+                    <!-- The 7 Worksheet Formula Lines -->
+                    <div class="space-y-4 font-mono-sheet text-sm sm:text-base text-slate-800">
+                        <p class="text-xs font-sans text-slate-500 mb-2 italic no-print">
+                            <i class="fa-solid fa-pencil text-slate-400 mr-1"></i>
+                            Calculated acoustic values for each note (Step 1: Raw Length; Step 2: Final Corrected Length):
+                        </p>
+
+                        <div id="worksheet-lines" class="space-y-3.5">
+                            <!-- Lines 1 to 7 populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Worksheet Footer Summary Table -->
+                    <div class="mt-8 pt-6 border-t-2 border-dashed border-slate-300">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 font-mono-sheet flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-slate-500"></i> Cut Length Summary Table
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs font-mono-sheet border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-200/70 border-b border-slate-300 text-slate-700">
+                                        <th class="p-2">Hole #</th>
+                                        <th class="p-2">Note</th>
+                                        <th class="p-2">Freq (Hz)</th>
+                                        <th class="p-2">Raw Pipe Length</th>
+                                        <th class="p-2 text-amber-800">End Correction</th>
+                                        <th class="p-2 text-emerald-800 font-bold">Final Pipe Length</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="summary-table-body" class="divide-y divide-slate-200">
+                                    <!-- Rows populated via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Signature / Date line for printable sheet -->
+                    <div class="mt-8 pt-4 border-t border-slate-300 grid grid-cols-2 gap-4 text-xs font-mono-sheet text-slate-500">
+                        <div>Flute Craft / Maker: ____________________</div>
+                        <div class="text-right">Date: ____________________</div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Visual Flute Tube Diagram -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 no-print space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-ruler-horizontal text-amber-600"></i>
+                        Acoustic Tube & Hole Position Diagram
+                    </h2>
+                    <p class="text-xs text-slate-500">Visual scale representation of calculated physical length from embouchure / stopper to open tone holes.</p>
+                </div>
+                <div class="text-xs bg-slate-100 px-3 py-1.5 rounded-lg font-mono font-semibold text-slate-700">
+                    Total Tube Fundamental Length: <span id="diagram-max-len" class="text-amber-700 font-bold">0.00</span> <span class="unit-label">in</span>
+                </div>
+            </div>
+
+            <!-- SVG Render Box -->
+            <div class="w-full overflow-x-auto bg-slate-50 p-4 rounded-lg border border-slate-200 min-h-[160px] flex items-center justify-center">
+                <svg id="flute-svg" class="w-full max-w-4xl h-36" viewBox="0 0 900 140">
+                    <!-- Dynamic SVG content injected here -->
+                </svg>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-600 pt-1">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                    <span><strong>Stopper / Embouchure:</strong> Reference zero point (0.00)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                    <span><strong>Tone Holes 1 - 7:</strong> Uncovered lengths</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-slate-700 inline-block"></span>
+                    <span><strong>End Correction (0.6R):</strong> Subtracted acoustic shift</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Acoustic Theory & Reference -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 no-print space-y-4">
+            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-book-open text-blue-600"></i>
+                Flute Acoustics & Calculation Guide
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-600 leading-relaxed">
+                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-wave-square text-amber-600"></i> 1. Half-Wavelength Physics
+                    </h3>
+                    <p>
+                        An open cylindrical pipe vibrates at half-wavelength fundamentals ($\lambda / 2$). The uncorrected acoustic wave length $L_0$ for a frequency $f$ and speed of sound $v$ is given by:
+                    </p>
+                    <div class="font-mono-sheet font-bold text-slate-900 bg-white p-2 rounded border text-center">
+                        L₀ = v / (2 × f)
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrows-left-right text-blue-600"></i> 2. End Correction (0.6R)
+                    </h3>
+                    <p>
+                        The standing wave inside the flute extends slightly beyond the physical opening into surrounding ambient air. To tune the note accurately, this virtual extension $0.6 \times R$ is subtracted:
+                    </p>
+                    <div class="font-mono-sheet font-bold text-slate-900 bg-white p-2 rounded border text-center">
+                        L_final = L₀ - 0.6R
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-temperature-arrow-up text-emerald-600"></i> 3. Temperature Impact
+                    </h3>
+                    <p>
+                        Speed of sound in dry air varies with temperature $T$ (°C):
+                    </p>
+                    <div class="font-mono-sheet font-bold text-slate-900 bg-white p-2 rounded border text-center">
+                        v ≈ 331.3 × √(1 + T / 273.15) m/s
+                    </div>
+                    <p class="text-[11px] text-slate-500">
+                        At room temperature (20°C / 68°F), $v \approx 13,504\text{ in/s}$. At warm breath temperature (24.5°C / 76°F), $v \approx 13,622\text{ in/s}$.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Temperature Speed of Sound Modal -->
+    <div id="temp-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-5 border border-slate-200">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-temperature-half text-blue-600"></i> Temperature & Speed of Sound
+                </h3>
+                <button onclick="toggleTempModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Ambient Air / Breath Temperature</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <span class="text-slate-500 text-[11px]">Fahrenheit (°F)</span>
+                            <input type="number" id="temp-f" value="76" oninput="calcSpeedFromTemp('f')"
+                                class="w-full px-3 py-2 border rounded-lg font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <span class="text-slate-500 text-[11px]">Celsius (°C)</span>
+                            <input type="number" id="temp-c" value="24.4" step="0.1" oninput="calcSpeedFromTemp('c')"
+                                class="w-full px-3 py-2 border rounded-lg font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 text-blue-900 space-y-1">
+                    <div class="text-[11px] font-semibold text-blue-700">Calculated Speed of Sound:</div>
+                    <div class="text-lg font-mono font-bold text-blue-950">
+                        <span id="calc-v-ins">13622</span> in/sec &nbsp;|&nbsp; <span id="calc-v-ms">346.0</span> m/sec
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="toggleTempModal()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                    Cancel
+                </button>
+                <button onclick="applyCalculatedSpeed()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold shadow-sm">
+                    Apply to Worksheet
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+        // Presets Data Dictionary
+        const PRESETS = {
+            // Western Modes & Diatonic
+            'ionian': { pattern: '2-2-1-2-2-2-1', mode: '12tet' },
+            'dorian': { pattern: '2-1-2-2-2-1-2', mode: '12tet' },
+            'phrygian': { pattern: '1-2-2-2-1-2-2', mode: '12tet' },
+            'lydian': { pattern: '2-2-2-1-2-2-1', mode: '12tet' },
+            'mixolydian': { pattern: '2-2-1-2-2-1-2', mode: '12tet' },
+            'aeolian': { pattern: '2-1-2-2-1-2-2', mode: '12tet' },
+            'locrian': { pattern: '1-2-2-1-2-2-2', mode: '12tet' },
+            'harmonic-minor': { pattern: '2-1-2-2-1-3-1', mode: '12tet' },
+            'melodic-minor': { pattern: '2-1-2-2-2-2-1', mode: '12tet' },
+
+            // Blues Scales
+            'minor-blues': { pattern: '3-2-1-1-3-2', mode: '12tet' },
+            'major-blues': { pattern: '2-1-1-3-2-3', mode: '12tet' },
+            'heptatonic-blues': { pattern: '3-2-1-1-1-2-2', mode: '12tet' },
+
+            // Pentatonic Scales
+            'major-pentatonic': { pattern: '2-2-3-2-3', mode: '12tet' },
+            'minor-pentatonic': { pattern: '3-2-2-3-2', mode: '12tet' },
+            'egyptian-pentatonic': { pattern: '2-3-2-3-2', mode: '12tet' },
+            'man-gong': { pattern: '3-2-3-2-2', mode: '12tet' },
+            'hirajoshi': { pattern: '2-1-4-1-4', mode: '12tet' },
+            'insen': { pattern: '1-4-2-4-1', mode: '12tet' },
+            'iwato': { pattern: '1-4-1-4-2', mode: '12tet' },
+            'yo-scale': { pattern: '2-3-2-2-3', mode: '12tet' },
+
+            // Hexatonic Scales
+            'whole-tone': { pattern: '2-2-2-2-2-2', mode: '12tet' },
+            'prometheus': { pattern: '2-2-2-3-1-2', mode: '12tet' },
+            'augmented-hexatonic': { pattern: '3-1-3-1-3-1', mode: '12tet' },
+            'tritone-hexatonic': { pattern: '1-3-2-1-3-2', mode: '12tet' },
+
+            // Tetratonic Scales
+            'major-tetratonic': { pattern: '4-3-2-3', mode: '12tet' },
+            'minor-tetratonic': { pattern: '3-4-2-3', mode: '12tet' },
+            'diminished-tetratonic': { pattern: '3-3-3-3', mode: '12tet' },
+            'native-tetratonic': { pattern: '3-2-4-3', mode: '12tet' },
+            'inuit-tetratonic': { pattern: '2-3-2-5', mode: '12tet' },
+
+            // Tritonic Scales
+            'major-triad-tritonic': { pattern: '4-3-5', mode: '12tet' },
+            'minor-triad-tritonic': { pattern: '3-4-5', mode: '12tet' },
+            'equal-tritonic': { pattern: '4-4-4', mode: '12tet' },
+            'symmetrical-tritonic': { pattern: '5-2-5', mode: '12tet' },
+
+            // Octatonic Scales
+            'octatonic-hw': { pattern: '1-2-1-2-1-2-1-2', mode: '12tet' },
+            'octatonic-wh': { pattern: '2-1-2-1-2-1-2-1', mode: '12tet' },
+
+            // Microtonal EDOs
+            '5-edo': { pattern: '1-1-1-1-1', mode: 'edo' },
+            '7-edo': { pattern: '1-1-1-1-1-1-1', mode: 'edo' },
+            '8-edo': { pattern: '1-1-1-1-1-1-1-1', mode: 'edo' },
+
+            // Legacy Instrument Presets
+            'bansuri-e': [
+                { note: 'E4', freq: 329.63 },
+                { note: 'F#4', freq: 369.99 },
+                { note: 'G#4', freq: 415.30 },
+                { note: 'A4', freq: 440.00 },
+                { note: 'B4', freq: 493.88 },
+                { note: 'C#5', freq: 554.37 },
+                { note: 'D#5', freq: 622.25 }
+            ],
+            'native-g': [
+                { note: 'G4', freq: 392.00 },
+                { note: 'A#4', freq: 466.16 },
+                { note: 'C5', freq: 523.25 },
+                { note: 'D5', freq: 587.33 },
+                { note: 'D#5', freq: 622.25 },
+                { note: 'F5', freq: 698.46 },
+                { note: 'G5', freq: 783.99 }
+            ]
+        };
+
+        // Application State
+        let state = {
+            units: 'in', // 'in' or 'mm'
+            speedOfSound: 13622, // in/sec default
+            boreDiameter: 0.75, // in
+            holes: []
+        };
+
+        let audioCtx = null;
+
+        function getNoteFreq(noteStr) {
+            if (!noteStr) return 440;
+            const match = noteStr.trim().match(/^([A-G]#?)(\d)$/i);
+            if (!match) return 440;
+            const name = match[1].toUpperCase();
+            const octave = parseInt(match[2]);
+            const noteIndex = NOTE_NAMES.indexOf(name);
+            if (noteIndex === -1) return 440;
+            const midi = (octave + 1) * 12 + noteIndex;
+            return 440 * Math.pow(2, (midi - 69) / 12);
+        }
+
+        function getNoteNameFromFreq(freq) {
+            if (!freq || freq <= 0) return 'Custom';
+            const midi = 69 + 12 * Math.log2(freq / 440);
+            const roundedMidi = Math.round(midi);
+            const noteIndex = (roundedMidi % 12 + 12) % 12;
+            const octave = Math.floor(roundedMidi / 12) - 1;
+            const centsOffset = Math.round((midi - roundedMidi) * 100);
+            
+            const noteName = NOTE_NAMES[noteIndex] + octave;
+            if (Math.abs(centsOffset) < 3) {
+                return noteName;
+            } else {
+                const sign = centsOffset > 0 ? '+' : '';
+                return `${noteName} (${sign}${centsOffset}¢)`;
+            }
+        }
+
+        function generateScaleFromPattern() {
+            const keyNoteSelect = document.getElementById('key-note-select');
+            const patternInput = document.getElementById('step-pattern-input');
+            const modeSelect = document.getElementById('tuning-mode-select');
+
+            const keyNote = keyNoteSelect ? keyNoteSelect.value : 'D4';
+            const patternStr = patternInput ? patternInput.value.trim() : '2-2-1-2-2-2-1';
+            const mode = modeSelect ? modeSelect.value : '12tet';
+
+            const baseFreq = getNoteFreq(keyNote);
+
+            // Parse numbers from step string
+            const rawSteps = patternStr.split(/[-,\s]+/).map(s => parseFloat(s)).filter(n => !isNaN(n) && n > 0);
+            const steps = rawSteps.length > 0 ? rawSteps : [2, 2, 1, 2, 2, 2, 1];
+
+            let newHoles = [];
+            let cumulativeStep = 0;
+
+            const totalEdoSteps = mode === 'edo' ? steps.reduce((a, b) => a + b, 0) : 12;
+
+            for (let i = 0; i < 7; i++) {
+                if (i > 0) {
+                    const stepVal = steps[(i - 1) % steps.length];
+                    cumulativeStep += stepVal;
+                }
+
+                let freq = baseFreq;
+                if (mode === '12tet') {
+                    freq = baseFreq * Math.pow(2, cumulativeStep / 12);
+                } else if (mode === 'edo') {
+                    freq = baseFreq * Math.pow(2, cumulativeStep / totalEdoSteps);
+                } else if (mode === 'cents') {
+                    freq = baseFreq * Math.pow(2, cumulativeStep / 1200);
+                }
+
+                const noteName = getNoteNameFromFreq(freq);
+
+                newHoles.push({
+                    note: noteName,
+                    freq: Math.round(freq * 100) / 100
+                });
+            }
+
+            state.holes = newHoles;
+            renderHoleInputs();
+            updateCalculations();
+        }
+
+        function setStepPattern(pattern, mode) {
+            const patternInput = document.getElementById('step-pattern-input');
+            const modeSelect = document.getElementById('tuning-mode-select');
+            
+            if (patternInput) patternInput.value = pattern;
+            if (modeSelect && mode) modeSelect.value = mode;
+
+            generateScaleFromPattern();
+        }
+
+        function applyPreset(presetKey) {
+            if (presetKey === 'custom') return;
+            if (PRESETS[presetKey]) {
+                const preset = PRESETS[presetKey];
+                if (preset.pattern) {
+                    if (presetKey === 'g-major') document.getElementById('key-note-select').value = 'G4';
+                    if (presetKey === 'c-major') document.getElementById('key-note-select').value = 'C4';
+                    if (presetKey === 'd-major' || presetKey === 'ionian') document.getElementById('key-note-select').value = 'D4';
+
+                    setStepPattern(preset.pattern, preset.mode || '12tet');
+                    return;
+                }
+
+                if (Array.isArray(preset)) {
+                    state.holes = JSON.parse(JSON.stringify(preset));
+                    if (state.holes[0] && state.holes[0].note) {
+                        const keySelect = document.getElementById('key-note-select');
+                        if (keySelect.querySelector(`option[value="${state.holes[0].note}"]`)) {
+                            keySelect.value = state.holes[0].note;
+                        }
+                    }
+                    renderHoleInputs();
+                    updateCalculations();
+                }
+            }
+        }
+
+        function renderHoleInputs() {
+            const container = document.getElementById('hole-inputs-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            state.holes.forEach((hole, idx) => {
+                const row = document.createElement('div');
+                row.id = `hole-input-row-${idx}`;
+                row.className = "hole-row grid grid-cols-12 gap-2 items-center p-2 rounded-lg border border-slate-200 bg-slate-50 transition";
+                row.innerHTML = `
+                    <div class="col-span-2 font-bold text-xs text-slate-700 flex items-center gap-1">
+                        <span class="w-5 h-5 rounded-full bg-amber-600 text-white flex items-center justify-center text-[11px] font-bold">${idx + 1}</span>
+                    </div>
+                    <div class="col-span-3">
+                        <input type="text" value="${hole.note || ''}" onchange="onNoteInputChange(${idx}, this.value)"
+                            class="w-full px-2 py-1 text-xs font-bold text-slate-800 bg-white border border-slate-300 rounded focus:ring-1 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div class="col-span-5 relative">
+                        <input type="number" step="0.1" value="${hole.freq ? hole.freq.toFixed(2) : ''}" oninput="onFreqInputChange(${idx}, this.value)"
+                            class="w-full px-2 py-1 text-xs font-mono font-bold text-slate-900 bg-white border border-slate-300 rounded focus:ring-1 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div class="col-span-2 text-right">
+                        <button onclick="playHoleNote(${idx})" title="Play Pitch" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded shadow-sm transition">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function onFreqInputChange(index, value) {
+            const freq = parseFloat(value) || 0;
+            state.holes[index].freq = freq;
+            state.holes[index].note = getNoteNameFromFreq(freq);
+            
+            // Re-render row text if note updated
+            const row = document.getElementById(`hole-input-row-${index}`);
+            if (row) {
+                const noteInput = row.querySelector('input[type="text"]');
+                if (noteInput) noteInput.value = state.holes[index].note;
+            }
+
+            updateCalculations();
+        }
+
+        function onNoteInputChange(index, value) {
+            state.holes[index].note = value;
+            const freq = getNoteFreq(value);
+            if (freq) {
+                state.holes[index].freq = Math.round(freq * 100) / 100;
+                renderHoleInputs();
+            }
+            updateCalculations();
+        }
+
+        function updateCalculations() {
+            const boreInput = parseFloat(document.getElementById('bore-diameter').value) || 0;
+            const speedInput = parseFloat(document.getElementById('speed-of-sound').value) || 0;
+
+            state.boreDiameter = boreInput;
+            state.speedOfSound = speedInput;
+
+            const radius = boreInput / 2;
+            const endCorrection = 0.6 * radius;
+
+            // Update header readouts
+            document.getElementById('ws-v-val').textContent = speedInput.toLocaleString();
+            document.getElementById('ws-r-val').textContent = radius.toFixed(state.units === 'in' ? 3 : 2);
+            document.getElementById('ws-ec-val').textContent = endCorrection.toFixed(state.units === 'in' ? 3 : 2);
+            document.getElementById('radius-badge').textContent = `R = ${radius.toFixed(3)} ${state.units}`;
+
+            const worksheetContainer = document.getElementById('worksheet-lines');
+            const summaryTableBody = document.getElementById('summary-table-body');
+            
+            if (worksheetContainer) worksheetContainer.innerHTML = '';
+            if (summaryTableBody) summaryTableBody.innerHTML = '';
+
+            let maxCalculatedLength = 0;
+
+            state.holes.forEach((hole, idx) => {
+                const freq = hole.freq || 1;
+                const rawLength = state.speedOfSound / (2 * freq);
+                const finalLength = rawLength - endCorrection;
+
+                if (finalLength > maxCalculatedLength) {
+                    maxCalculatedLength = finalLength;
+                }
+
+                const rawStr = rawLength.toFixed(state.units === 'in' ? 2 : 1);
+                const ecStr = endCorrection.toFixed(state.units === 'in' ? 3 : 2);
+                const finalStr = finalLength.toFixed(state.units === 'in' ? 2 : 1);
+
+                // Build Worksheet Line
+                if (worksheetContainer) {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = "p-3 bg-white/80 rounded-lg border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:border-amber-400 transition";
+                    
+                    lineDiv.innerHTML = `
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold text-slate-900 w-6">${idx + 1})</span>
+                            <span class="text-slate-600 font-bold">${state.speedOfSound}</span>
+                            <span>/ (2 ×</span>
+                            <span class="fill-blank px-2 py-0.5 rounded text-amber-900">${freq} Hz</span><span>)</span>
+                            <span class="font-bold text-slate-800">=</span>
+                            <span class="fill-blank px-2 py-0.5 rounded text-blue-900">${rawStr} ${state.units}</span>
+                            <span class="text-slate-500 font-bold">- 0.6R (${ecStr})</span>
+                            <span class="font-bold text-slate-800">=</span>
+                            <span class="fill-blank px-2 py-0.5 rounded bg-amber-100 text-amber-950 font-bold text-base border-amber-400">${finalStr} ${state.units}</span>
+                        </div>
+                        <div class="text-xs text-slate-400 font-sans font-medium sm:text-right">
+                            Note: <strong class="text-slate-700">${hole.note}</strong>
+                        </div>
+                    `;
+                    worksheetContainer.appendChild(lineDiv);
+                }
+
+                // Populate Summary Table
+                if (summaryTableBody) {
+                    const tr = document.createElement('tr');
+                    tr.className = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+                    tr.innerHTML = `
+                        <td class="p-2 font-bold">${idx + 1}</td>
+                        <td class="p-2 font-bold text-amber-800">${hole.note}</td>
+                        <td class="p-2">${freq} Hz</td>
+                        <td class="p-2 text-slate-700">${rawStr} ${state.units}</td>
+                        <td class="p-2 text-amber-700">-${ecStr} ${state.units}</td>
+                        <td class="p-2 font-bold text-emerald-700">${finalStr} ${state.units}</td>
+                    `;
+                    summaryTableBody.appendChild(tr);
+                }
+            });
+
+            const diagMax = document.getElementById('diagram-max-len');
+            if (diagMax) diagMax.textContent = maxCalculatedLength.toFixed(state.units === 'in' ? 2 : 1);
+
+            renderFluteSVG(maxCalculatedLength, endCorrection);
+        }
+
+        function renderFluteSVG(maxLen, endCorr) {
+            const svg = document.getElementById('flute-svg');
+            if (!svg) return;
+            svg.innerHTML = '';
+
+            if (maxLen <= 0) return;
+
+            const startX = 60;
+            const endX = 840;
+            const tubeY = 45;
+            const tubeHeight = 40;
+
+            const totalScaleLen = maxLen * 1.08;
+
+            function distToX(dist) {
+                return startX + (dist / totalScaleLen) * (endX - startX);
+            }
+
+            // Body Tube
+            const bodyRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            bodyRect.setAttribute('x', startX);
+            bodyRect.setAttribute('y', tubeY);
+            bodyRect.setAttribute('width', endX - startX);
+            bodyRect.setAttribute('height', tubeHeight);
+            bodyRect.setAttribute('rx', '6');
+            bodyRect.setAttribute('fill', '#f59e0b');
+            bodyRect.setAttribute('fill-opacity', '0.15');
+            bodyRect.setAttribute('stroke', '#d97706');
+            bodyRect.setAttribute('stroke-width', '2.5');
+            svg.appendChild(bodyRect);
+
+            // Embouchure Reference Line
+            const stopperLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            stopperLine.setAttribute('x1', startX);
+            stopperLine.setAttribute('y1', tubeY - 10);
+            stopperLine.setAttribute('x2', startX);
+            stopperLine.setAttribute('y2', tubeY + tubeHeight + 10);
+            stopperLine.setAttribute('stroke', '#ef4444');
+            stopperLine.setAttribute('stroke-width', '3');
+            stopperLine.setAttribute('stroke-dasharray', '3,3');
+            svg.appendChild(stopperLine);
+
+            const stopperText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            stopperText.setAttribute('x', startX);
+            stopperText.setAttribute('y', tubeY - 15);
+            stopperText.setAttribute('text-anchor', 'middle');
+            stopperText.setAttribute('fill', '#ef4444');
+            stopperText.setAttribute('font-size', '10');
+            stopperText.setAttribute('font-weight', 'bold');
+            stopperText.textContent = 'Embouchure (0.0)';
+            svg.appendChild(stopperText);
+
+            // Tone Holes
+            state.holes.forEach((hole, idx) => {
+                const freq = hole.freq || 1;
+                const rawLength = state.speedOfSound / (2 * freq);
+                const finalLength = rawLength - endCorr;
+
+                const holeX = distToX(finalLength);
+                const holeY = tubeY + tubeHeight / 2;
+
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', holeX);
+                circle.setAttribute('cy', holeY);
+                circle.setAttribute('r', '8');
+                circle.setAttribute('fill', '#f59e0b');
+                circle.setAttribute('stroke', '#78350f');
+                circle.setAttribute('stroke-width', '2');
+                circle.setAttribute('cursor', 'pointer');
+                circle.addEventListener('click', () => playHoleNote(idx));
+                svg.appendChild(circle);
+
+                const numText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                numText.setAttribute('x', holeX);
+                numText.setAttribute('y', holeY + 3.5);
+                numText.setAttribute('text-anchor', 'middle');
+                numText.setAttribute('fill', '#78350f');
+                numText.setAttribute('font-size', '10');
+                numText.setAttribute('font-weight', 'bold');
+                numText.textContent = idx + 1;
+                svg.appendChild(numText);
+
+                const lenText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                lenText.setAttribute('x', holeX);
+                lenText.setAttribute('y', tubeY + tubeHeight + 22);
+                lenText.setAttribute('text-anchor', 'middle');
+                lenText.setAttribute('fill', '#1e293b');
+                lenText.setAttribute('font-size', '10');
+                lenText.setAttribute('font-family', 'Courier Prime, monospace');
+                lenText.setAttribute('font-weight', 'bold');
+                lenText.textContent = `${finalLength.toFixed(1)}${state.units}`;
+                svg.appendChild(lenText);
+
+                const noteLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                noteLabel.setAttribute('x', holeX);
+                noteLabel.setAttribute('y', tubeY - 12);
+                noteLabel.setAttribute('text-anchor', 'middle');
+                noteLabel.setAttribute('fill', '#b45309');
+                noteLabel.setAttribute('font-size', '11');
+                noteLabel.setAttribute('font-weight', 'bold');
+                noteLabel.textContent = hole.note;
+                svg.appendChild(noteLabel);
+            });
+        }
+
+        function setUnits(unit) {
+            if (state.units === unit) return;
+            state.units = unit;
+            
+            const inBtn = document.getElementById('unit-in-btn');
+            const mmBtn = document.getElementById('unit-mm-btn');
+            const unitLabels = document.querySelectorAll('.unit-label');
+            const speedUnitLabel = document.getElementById('speed-unit-label');
+            const speedInput = document.getElementById('speed-of-sound');
+            const boreInput = document.getElementById('bore-diameter');
+
+            if (unit === 'in') {
+                inBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border transition bg-amber-600 text-white border-amber-600 shadow-sm";
+                mmBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition";
+                unitLabels.forEach(el => el.textContent = 'in');
+                if (speedUnitLabel) speedUnitLabel.textContent = 'in/sec';
+                
+                boreInput.value = (parseFloat(boreInput.value) / 25.4).toFixed(3);
+                speedInput.value = Math.round(parseFloat(speedInput.value) / 25.4);
+            } else {
+                mmBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border transition bg-amber-600 text-white border-amber-600 shadow-sm";
+                inBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition";
+                unitLabels.forEach(el => el.textContent = 'mm');
+                if (speedUnitLabel) speedUnitLabel.textContent = 'mm/sec';
+
+                boreInput.value = (parseFloat(boreInput.value) * 25.4).toFixed(2);
+                speedInput.value = Math.round(parseFloat(speedInput.value) * 25.4);
+            }
+
+            updateCalculations();
+        }
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playHoleNote(index) {
+            initAudio();
+            const hole = state.holes[index];
+            if (!hole || !hole.freq) return;
+
+            const row = document.getElementById(`hole-input-row-${index}`);
+            if (row) {
+                row.classList.add('active-playing');
+                setTimeout(() => row.classList.remove('active-playing'), 600);
+            }
+
+            playTone(hole.freq, 0.6);
+        }
+
+        function playTone(freq, duration = 0.5) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(freq * 2, audioCtx.currentTime);
+                gain2.gain.setValueAtTime(0.15, audioCtx.currentTime);
+
+                const now = audioCtx.currentTime;
+                gain.gain.setValueAtTime(0.001, now);
+                gain.gain.linearRampToValueAtTime(0.3, now + 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+                osc.connect(gain);
+                osc2.connect(gain2);
+                gain2.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + duration);
+                osc2.stop(now + duration);
+            } catch (e) {
+                console.error("Audio playback error:", e);
+            }
+        }
+
+        function playFullScale() {
+            initAudio();
+            const btn = document.getElementById('btn-play-scale');
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('opacity-50');
+            }
+
+            state.holes.forEach((hole, idx) => {
+                setTimeout(() => {
+                    playHoleNote(idx);
+                    if (idx === state.holes.length - 1 && btn) {
+                        setTimeout(() => {
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-50');
+                        }, 600);
+                    }
+                }, idx * 450);
+            });
+        }
+
+        function toggleTempModal() {
+            const modal = document.getElementById('temp-modal');
+            if (modal) modal.classList.toggle('hidden');
+        }
+
+        function calcSpeedFromTemp(source) {
+            let f = parseFloat(document.getElementById('temp-f').value) || 0;
+            let c = parseFloat(document.getElementById('temp-c').value) || 0;
+
+            if (source === 'f') {
+                c = (f - 32) * (5 / 9);
+                document.getElementById('temp-c').value = c.toFixed(1);
+            } else {
+                f = (c * 9 / 5) + 32;
+                document.getElementById('temp-f').value = f.toFixed(1);
+            }
+
+            const speedMS = 331.3 * Math.sqrt(1 + (c / 273.15));
+            const speedINS = speedMS * 39.3701;
+
+            document.getElementById('calc-v-ms').textContent = speedMS.toFixed(1);
+            document.getElementById('calc-v-ins').textContent = Math.round(speedINS);
+        }
+
+        function applyCalculatedSpeed() {
+            const computedIns = parseInt(document.getElementById('calc-v-ins').textContent);
+            if (state.units === 'in') {
+                document.getElementById('speed-of-sound').value = computedIns;
+            } else {
+                const computedMMs = Math.round(parseFloat(document.getElementById('calc-v-ms').textContent) * 1000);
+                document.getElementById('speed-of-sound').value = computedMMs;
+            }
+            toggleTempModal();
+            updateCalculations();
+        }
+
+        function resetDefaults() {
+            document.getElementById('preset-select').value = 'ionian';
+            document.getElementById('key-note-select').value = 'D4';
+            document.getElementById('tuning-mode-select').value = '12tet';
+            document.getElementById('step-pattern-input').value = '2-2-1-2-2-2-1';
+            document.getElementById('bore-diameter').value = state.units === 'in' ? 0.75 : 19.05;
+            document.getElementById('speed-of-sound').value = state.units === 'in' ? 13622 : 346000;
+            generateScaleFromPattern();
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            generateScaleFromPattern();
+        };
+    </script>
+</body>
+</html>
