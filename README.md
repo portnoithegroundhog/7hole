@@ -46,3 +46,5 @@ D           | 587.3 Hz    | 1.7792" (~1 25/32")     | -0.5958"  | 1.1237" (~1 1/
 _________________________________________________________________________________________________________
 
 There is also a PDF with this same information and an in depth discussion of what happened with the math.
+
+A new calculator is being made in order to address the problems discussed. In the mean time, for a 6 hole pvc flute users will need to incorporate the corrections above in order to accurately create a flute.
