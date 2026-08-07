@@ -1,3 +1,5 @@
+[a Major Flute with blue bear tone box details.pdf](https://github.com/user-attachments/files/30808327/a.Major.Flute.with.blue.bear.tone.box.details.pdf)
+<img width="1562" height="1562" alt="bluebear tone box" src="https://github.com/user-attachments/assets/3f866de1-00c0-4e40-92e5-d9c4196ab1cf" />
 # 7hole
 A tool for guessing where to put tone holes on a flute
 
