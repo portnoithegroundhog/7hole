@@ -2,8 +2,11 @@
 A tool for guessing where to put tone holes on a flute
 
 I used this flute calculator to make a flute and measure the AI math versus reality.
-The result an understanding that assumptions were made about the nature of the pipe based on two open ends. 
+
+The result is an understanding that assumptions were made about the nature of the pipe based on two open ends. 
+
 Since I'm using a tone box designed by Blue Bear Flutes the actual "end corrections" are much longer than the math accounted for.
+
 Here are the results.
 _________________________________________________________________________________________________________
 000 real flute a4 Major
@@ -39,4 +42,5 @@ C           | 523.3 Hz    | 1.9971" (~2.00")        | -0.3779"  | 1.2613" (~1 1/
 C# / Db     | 554.4 Hz    | 1.8850" (~1 7/8")       | -0.4900"  | 1.1906" (~1 3/16")         | -0.3094"
 D           | 587.3 Hz    | 1.7792" (~1 25/32")     | -0.5958"  | 1.1237" (~1 1/8")          | -0.3763"
 _________________________________________________________________________________________________________
+
 There is also a PDF with this same information and an in depth discussion of what happened with the math.
