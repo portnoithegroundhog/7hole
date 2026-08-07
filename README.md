@@ -3,6 +3,8 @@
 # 7hole
 A tool for guessing where to put tone holes on a flute
 
+if reading on github click [raw] to read the section below.
+
 I used this flute calculator to make a flute and measure the AI math versus reality.
 
 The result is an understanding that assumptions were made about the nature of the pipe based on two open ends. 
